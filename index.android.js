@@ -17,27 +17,62 @@ import Beacons from 'react-native-beacons-android'
 import { createStore } from 'redux';
 import { connect, Provider } from 'react-redux';
 
-function currentRoom(state = {room:{minor:'No room found'}}, action) {
-	switch (action.type) {
-	case 'UPDATE':
-		return action
-	default:
-		return state
-	}
+import Tabs from './Components/Tabs';
+
+var defaultState = {
+	"beacons" : [{"minor" : 0}],
+	"projects" : [],
+	"rooms" : [],
+	"nearbyRooms": [{}]
 }
-function projects(state = {projects:[]}, action) {
+
+function state(state = defaultState, action) {
 	switch (action.type) {
-	case 'UPDATE':
+	case 'BEACONS_UPDATE':
+		action.projects = state.projects;
+		action.rooms = state.rooms;
+		action.nearbyRooms = [];
+		for(i in action.beacons){
+			for(j in action.rooms){
+				if(action.rooms[j].minor_number === action.beacons[i].minor){
+					if(!action.nearbyRooms.includes(action.rooms[j])){
+						action.nearbyRooms.push(action.rooms[j]);
+					}
+					break;
+				}
+			}
+		}
+		return action
+	case 'PROJECTS_UPDATE':
+		action.beacons = state.beacons;
+		action.rooms = state.rooms;
+		action.nearbyRooms = state.nearbyRooms;
+		return action
+	case 'ROOMS_UPDATE':
+		action.beacons = state.beacons;
+		action.projects = state.projects;
+		action.nearbyRooms = state.nearbyRooms;
+		for(i in action.beacons){
+			for(j in action.rooms){
+				if(action.rooms[j].minor_number === action.beacons[i].minor){
+					if(!action.nearbyRooms.includes(action.rooms[j])){
+						action.nearbyRooms.push(action.rooms[j]);
+					}
+					break;
+				}
+			}
+		}
 		return action
 	default:
 		return state
 	}
 }
 
-let roomStore = createStore(currentRoom);
-let projectsStore = createStore(projects);
+let store = createStore(state);
+Beacons.detectIBeacons(); 
 
-Beacons.detectIBeacons();
+store.dispatch({type:'BEACONS_UPDATE', beacons:[{minor:9494}, {minor:9494}, {minor:32767}]});
+
 async function establishBeacons(){
 		try {
 			await Beacons.startRangingBeaconsInRegion('REGION1', 'b9407f30-f5f8-466e-aff9-25556b57fe6d')
@@ -48,9 +83,16 @@ async function establishBeacons(){
 		DeviceEventEmitter.addListener('beaconsDidRange', (data) => {
 			console.log(data);
 			if(data.beacons.length > 0){
-				new_room = data.beacons[0];
-				new_room.minor = "Beacon detected: " + new_room.minor
-				roomStore.dispatch({type:'UPDATE', room:data.beacons[0]});
+				function compare(a,b) {
+				  if (a.distance < b.distance)
+				    return -1;
+				  if (a.distance > b.distance)
+				    return 1;
+				  return 0;
+				}
+
+				data.beacons.sort(compare);
+				store.dispatch({type:'BEACONS_UPDATE', beacons:data.beacons});
 			}
 		});
 }
@@ -60,15 +102,16 @@ async function getProjectsFromAPI() {
 	try {
 		let response = await fetch('https://colmfyp.netsoc.co/projects.json');
 		let responseJson = await response.json();
-		return responseJson.projects;
+		return responseJson;
 	} catch(error) {
 		console.error(error);
 	}
 }
 async function initProjects(){
-	let projects = await getProjectsFromAPI();
-	console.log(projects);
-	projectsStore.dispatch({type:'UPDATE', projects:projects});
+	let data = await getProjectsFromAPI();
+	console.log(data); 
+	store.dispatch({type:'PROJECTS_UPDATE', projects:data.projects});
+	store.dispatch({type:'ROOMS_UPDATE', rooms:data.rooms});
 }
 initProjects();
 
@@ -76,60 +119,17 @@ export default class Mizen extends Component {
 	render() {
 		return (
 			<View style={styles.container}>
-				<Provider store={roomStore}>
-					<RoomInfo />
-				</Provider>
-				<Provider store={projectsStore}>
-					<ProjectInfo />
+				<Provider store={store}>
+					<Tabs />
 				</Provider>
 			</View>
 		);
 	}
 }
 
-export class RoomInfo2 extends Component{
-	render() {
-		return (
-			<Text style={styles.welcome}>
-					{this.props.room}
-			</Text>
-		);
-	}
-}
-const mapRoomStateToProps = (state) => {
-	return {
-		room: state.room.minor
-	}
-}
-
-const RoomInfo = connect(mapRoomStateToProps)(RoomInfo2);
-
-
-export class ProjectInfo2 extends Component{
-	render() {
-		return (
-			<Text style={styles.welcome}>
-					With {this.props.numprojs} projects
-			</Text>
-		);
-	}
-}
-
-const mapProjectStateToProps = (state) => {
-	return {
-		numprojs: state.projects.length
-	}
-}
-const ProjectInfo = connect(mapProjectStateToProps)(ProjectInfo2);
-
-
-
 const styles = StyleSheet.create({
 	container: {
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-		backgroundColor: '#F5FCFF',
+		flex: 1
 	},
 	welcome: {
 		fontSize: 20,

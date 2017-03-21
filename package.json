@@ -10,7 +10,9 @@
     "react": "15.4.2",
     "react-native": "0.41.2",
     "react-native-beacons-android": "^2.1.0",
+    "react-native-beacons-manager": "^1.0.2",
     "react-native-ibeacon": "^0.6.0",
+    "react-native-tab-view": "0.0.57",
     "react-redux": "^5.0.2",
     "redux": "^3.6.0"
   },
