@@ -125,9 +125,7 @@ export default class Mizen extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Provider store={store}>
-          <Tabs />
-        </Provider>
+        <Tabs store={store}/>
       </View>
     );
   }

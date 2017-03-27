@@ -17,7 +17,6 @@ export class ProjectInfo extends Component{
 				<Text style={styles.owner}>
 					{this.props.project.student_name} (with {this.props.project.supervisor_name})
 				</Text>
-
 			</View>
 		);
 	}
