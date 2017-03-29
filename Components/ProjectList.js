@@ -5,28 +5,42 @@ import {
 	Text,
 	View,
 	ListView,
-	DeviceEventEmitter
+	DeviceEventEmitter,
+	TouchableOpacity
 } from 'react-native';
 import { connect, Provider } from 'react-redux';
-import ProjectInfo from './ProjectInfo';
+import ProjectRowItem from './ProjectRowItem';
 import NearbyInfo from './NearbyInfo';
 
 export class ProjectList extends Component{
-	render() {
-		return (
-			<ListView
-				dataSource={this.props.ds}
-				renderRow={(rowData) => <ProjectInfo project={rowData}/>}
-			/>
-		);
+	constructor(props){
+		super(props);
 	}
+	render() {
+		const { navigate } = this.props.navigation;
+			return (
+				<ListView
+					dataSource={this.props.ds}
+					renderRow={(rowData) => <ProjectRowItem
+												project={rowData}
+												callOnClick={(project) => navigate('IndividualProject', { project: project })} />
+				} />
+			);
+	}
+
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state, ownProps) => {
 	let datasource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-	return{
+	props = {
 		ds : datasource.cloneWithRows(state.projects)
 	}
+
+	if(typeof ownProps.navigation !== "undefined"){
+		props.navigation = ownProps.navigation;
+	}
+
+	return props;
 }
 
 export const AllProjectsList = connect(mapStateToProps)(ProjectList);

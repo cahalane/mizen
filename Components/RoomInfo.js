@@ -8,11 +8,10 @@ import {
 	DeviceEventEmitter
 } from 'react-native';
 import { connect, Provider } from 'react-redux';
-import ProjectInfo from './ProjectInfo';
 import NearbyInfo from './NearbyInfo';
 import ProjectList from './ProjectList';
 
-export class RoomInfo2 extends Component{
+export class RoomInfo2 extends Component {
 	constructor(props) {
 		super(props);
 	}
@@ -21,19 +20,22 @@ export class RoomInfo2 extends Component{
 		if (typeof this.props.room !== "undefined"){
 			return (
 				<View>
-					<Text style={styles.headerText}>
-						{this.props.room.name}
-					</Text>
+					<View>
+						<Text style={styles.headerText}>
+							{this.props.room.name}
+						</Text>
+						<NearbyInfo rooms={this.props.nearbyRooms} />
+					</View>
 					<ProjectList
-						ds={this.props.nearbyDS}/>
-					<NearbyInfo rooms={this.props.nearbyRooms} />
+						ds={this.props.nearbyDS}
+						navigation={this.props.navigation} />
 				</View>
 			);
 		} else {
 			return (
-				<Text>
-					Looking for a room...
-				</Text>
+				<View>
+					<Text> Looking for a room... </Text>
+				</View>
 			);
 		}
 	}
@@ -41,6 +43,7 @@ export class RoomInfo2 extends Component{
 
 const mapStateToProps = (state) => {
 	projrm = [];
+	pos = 1;
 	for(i in state.projects){
 		if( state.projects[i].room != null && state.nearbyRooms.length > 0
 			&& state.projects[i].room.minor_number === state.nearbyRooms[0].minor_number){

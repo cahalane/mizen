@@ -13,6 +13,7 @@
     "react-native-beacons-manager": "^1.0.2",
     "react-native-ibeacon": "^0.6.0",
     "react-native-tab-view": "0.0.57",
+    "react-navigation": "^1.0.0-beta.7",
     "react-redux": "^5.0.2",
     "redux": "^3.6.0"
   },

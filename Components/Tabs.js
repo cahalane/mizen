@@ -8,9 +8,49 @@ import {
 } from 'react-native';
 import { connect, Provider } from 'react-redux';
 import RoomInfo from './RoomInfo';
-import ProjectInfo from './ProjectInfo';
 import { TabViewAnimated, TabBar } from 'react-native-tab-view';
 import { ProjectList, AllProjectsList } from './ProjectList';
+import IndividualProjectScreen from './IndividualProjectScreen';
+import {StackNavigator} from 'react-navigation';
+
+class NearbyScreen extends Component {
+
+	static navigationOptions = {
+		title: "Nearby Projects"
+	};
+	render(){
+	  return (
+			<Provider store={this.props.screenProps.store}>
+				<RoomInfo
+					style={styles.page}
+					navigation={this.props.navigation}/>
+			</Provider>
+		);
+	}
+}
+
+class AllProjectsScreen extends Component {
+	static navigationOptions = {
+		title: "Nearby Projects"
+	};
+	render(){
+	  return (
+			<Provider store={this.props.screenProps.store}>
+				<AllProjectsList navigation={this.props.navigation} />
+			</Provider>
+		);
+	}
+}
+
+const NearbyNav = StackNavigator({
+  Nearby: { screen: NearbyScreen },
+  IndividualProject: { screen: IndividualProjectScreen }
+});
+
+const AllProjectsNav = StackNavigator({
+  AllProjects: { screen: AllProjectsScreen },
+  IndividualProject: { screen: IndividualProjectScreen }
+});
 
 export class Tabs extends Component{
 	state = {
@@ -33,16 +73,11 @@ export class Tabs extends Component{
 		switch (route.key) {
 		case '1':
 			  return (
-			  	<Provider store={this.props.store}>
-					<RoomInfo
-						style={styles.page} />
-			  	</Provider>
+			  	<NearbyNav screenProps={this.props} />
 				);
 		case '2':
 		  return (
-			  	<Provider store={this.props.store}>
-					<AllProjectsList />
-			  	</Provider>
+			  	<AllProjectsNav screenProps={this.props} />
 			);
 		default:
 		  return null;
@@ -61,6 +96,7 @@ export class Tabs extends Component{
       		);
 	}
 }
+
 
 const styles = StyleSheet.create({
   container: {

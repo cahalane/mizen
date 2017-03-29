@@ -12,8 +12,8 @@ export class NearbyInfo extends Component{
 		if(this.props.rooms.length > 0){
 			return (
 				<View>
-					<Text>
-						{this.props.rooms[0].name}
+					<Text style={styles.nearbyText}>
+					 	Nearby: {this.props.rooms[0].name}
 					</Text>
 				</View>
 			);
@@ -22,5 +22,13 @@ export class NearbyInfo extends Component{
 		}
 	}
 }
+
+const styles = StyleSheet.create({
+	nearbyText: {
+		fontSize: 10,
+		textAlign: 'center',
+		margin: 5,
+	}
+});
 
 export default NearbyInfo; 

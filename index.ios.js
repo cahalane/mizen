@@ -100,7 +100,6 @@ async function establishBeacons(){
       store.dispatch({type:'BEACONS_UPDATE', beacons:data.beacons});
     }
   });
-  store.dispatch({type:'BEACONS_UPDATE', beacons:[{minor:9494}, {minor:9494}, {minor:32767}]});
 }
 establishBeacons();
 
@@ -124,9 +123,7 @@ initProjects();
 export default class Mizen extends Component {
   render() {
     return (
-      <View style={styles.container}>
-        <Tabs store={store}/>
-      </View>
+        <Tabs store={store} />
     );
   }
 }
