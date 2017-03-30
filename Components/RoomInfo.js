@@ -28,6 +28,8 @@ export class RoomInfo2 extends Component {
 					</View>
 					<ProjectList
 						ds={this.props.nearbyDS}
+						showSearchBar={false}
+						projects={this.props.projrm}
 						navigation={this.props.navigation} />
 				</View>
 			);

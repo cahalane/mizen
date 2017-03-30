@@ -3,7 +3,8 @@ import {
 	AppRegistry,
 	StyleSheet,
 	Text,
-	View
+	View,
+	ScrollView
 } from 'react-native';
 import { connect } from 'react-redux';
 
@@ -15,14 +16,14 @@ export class IndividualProjectScreen extends Component{
 		const { params } = this.props.navigation.state;
 		if(params.project){
 			return (
-				<View>
+				<ScrollView>
 					<Text style={styles.headerText}>
 						{params.project.title}
 					</Text>
 					<Text>
 						{params.project.description}
 					</Text>
-				</View>
+				</ScrollView>
 			);
 		} else {
 			return (<View></View>);

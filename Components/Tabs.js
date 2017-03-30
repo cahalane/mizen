@@ -4,7 +4,8 @@ import {
 	StyleSheet,
 	Text,
 	View,
-	ListView
+	ListView,
+	Platform,
 } from 'react-native';
 import { connect, Provider } from 'react-redux';
 import RoomInfo from './RoomInfo';
@@ -12,6 +13,7 @@ import { TabViewAnimated, TabBar } from 'react-native-tab-view';
 import { ProjectList, AllProjectsList } from './ProjectList';
 import IndividualProjectScreen from './IndividualProjectScreen';
 import {StackNavigator} from 'react-navigation';
+import Spacing from './Spacing';
 
 class NearbyScreen extends Component {
 
@@ -31,7 +33,7 @@ class NearbyScreen extends Component {
 
 class AllProjectsScreen extends Component {
 	static navigationOptions = {
-		title: "Nearby Projects"
+		title: "All Projects"
 	};
 	render(){
 	  return (
@@ -73,11 +75,11 @@ export class Tabs extends Component{
 		switch (route.key) {
 		case '1':
 			  return (
-			  	<NearbyNav screenProps={this.props} />
+				<NearbyNav screenProps={this.props} />
 				);
 		case '2':
 		  return (
-			  	<AllProjectsNav screenProps={this.props} />
+				<AllProjectsNav screenProps={this.props} />
 			);
 		default:
 		  return null;
@@ -86,21 +88,24 @@ export class Tabs extends Component{
 
 	render() {
 		return (
+			<View style={styles.container}>
+			<Spacing />
 			<TabViewAnimated
-		        style={styles.container}
-		        navigationState={this.state}
-		        renderScene={this._renderScene}
-		        renderHeader={this._renderHeader}
-		        onRequestChangeTab={this._handleChangeTab}
-		      	/> 
-      		);
+				style={styles.container}
+				navigationState={this.state}
+				renderScene={this._renderScene}
+				renderHeader={this._renderHeader}
+				onRequestChangeTab={this._handleChangeTab}
+				/>
+			</View>
+		);
 	}
 }
 
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+	flex: 1,
   },
   page: {
 	justifyContent: 'center',

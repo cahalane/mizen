@@ -86,7 +86,6 @@ async function establishBeacons(){
     console.log(`Beacons ranging not started, error: ${error}`);
   }
   DeviceEventEmitter.addListener('beaconsDidRange', (data) => {
-    console.log(data);
     if(data.beacons.length > 0){
       function compare(a,b) {
         if (a.distance < b.distance)
