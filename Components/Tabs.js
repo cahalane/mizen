@@ -14,6 +14,7 @@ import { ProjectList, AllProjectsList } from './ProjectList';
 import IndividualProjectScreen from './IndividualProjectScreen';
 import {StackNavigator} from 'react-navigation';
 import Spacing from './Spacing';
+import KeyboardSpacer from 'react-native-keyboard-spacer';
 
 class NearbyScreen extends Component {
 
@@ -89,14 +90,15 @@ export class Tabs extends Component{
 	render() {
 		return (
 			<View style={styles.container}>
-			<Spacing />
-			<TabViewAnimated
-				style={styles.container}
-				navigationState={this.state}
-				renderScene={this._renderScene}
-				renderHeader={this._renderHeader}
-				onRequestChangeTab={this._handleChangeTab}
-				/>
+				<Spacing />
+				<TabViewAnimated
+					style={styles.container}
+					navigationState={this.state}
+					renderScene={this._renderScene}
+					renderHeader={this._renderHeader}
+					onRequestChangeTab={this._handleChangeTab}
+					/>
+				<KeyboardSpacer />
 			</View>
 		);
 	}

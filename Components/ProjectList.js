@@ -53,16 +53,17 @@ export class ProjectList extends Component{
 													project={rowData}
 													callOnClick={(project) => navigate('IndividualProject', { project: project })} />
 					} />
-					<SearchBar
+					{this.showSearchBar && <SearchBar
 						ref={(ref) => this.searchBar = ref}
   						data={this.props.projects}
+  						focusOnLayout={false}
 						allDataOnEmptySearch={true}
 						handleResults={(results) => this._handleResults(results)}
 						showOnLoad={this.showSearchBar}
 						hideBack={true}
 						iOSPadding={false}
 						style={{margin: 10}}
-					/>
+					/>}
 				</View>
 			);
 	}
