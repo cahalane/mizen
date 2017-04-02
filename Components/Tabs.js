@@ -8,23 +8,24 @@ import {
 	Platform,
 } from 'react-native';
 import { connect, Provider } from 'react-redux';
-import RoomInfo from './RoomInfo';
+import NearbyRoomInfo from './RoomInfo';
 import { TabViewAnimated, TabBar } from 'react-native-tab-view';
 import { ProjectList, AllProjectsList } from './ProjectList';
+import RoomList from './RoomList';
 import IndividualProjectScreen from './IndividualProjectScreen';
+import IndividualRoomScreen from './IndividualRoomScreen';
 import {StackNavigator} from 'react-navigation';
 import Spacing from './Spacing';
 import KeyboardSpacer from 'react-native-keyboard-spacer';
 
 class NearbyScreen extends Component {
-
 	static navigationOptions = {
 		title: "Nearby Projects"
 	};
 	render(){
 	  return (
 			<Provider store={this.props.screenProps.store}>
-				<RoomInfo
+				<NearbyRoomInfo
 					style={styles.page}
 					navigation={this.props.navigation}/>
 			</Provider>
@@ -45,6 +46,20 @@ class AllProjectsScreen extends Component {
 	}
 }
 
+class RoomListScreen extends Component {
+	static navigationOptions = {
+		title: "All Rooms"
+	};
+	render(){
+	  return (
+			<Provider store={this.props.screenProps.store}>
+				<RoomList navigation={this.props.navigation} />
+			</Provider>
+		);
+	}
+}
+
+
 const NearbyNav = StackNavigator({
   Nearby: { screen: NearbyScreen },
   IndividualProject: { screen: IndividualProjectScreen }
@@ -55,12 +70,20 @@ const AllProjectsNav = StackNavigator({
   IndividualProject: { screen: IndividualProjectScreen }
 });
 
+const AllRoomsNav = StackNavigator({
+  AllProjects: { screen: RoomListScreen },
+  IndividualRoom: { screen: IndividualRoomScreen },
+  IndividualProject: { screen: IndividualProjectScreen }
+});
+
+
 export class Tabs extends Component{
 	state = {
 		index: 0,
 		routes: [
 		  { key: '1', title: 'Nearby' },
-		  { key: '2', title: 'All' },
+		  { key: '2', title: 'Projects' },
+		  { key: '3', title: 'Rooms' },
 		],
 	};
 
@@ -76,11 +99,15 @@ export class Tabs extends Component{
 		switch (route.key) {
 		case '1':
 			  return (
-				<NearbyNav screenProps={this.props} />
+				<NearbyNav style={styles.stackNav} screenProps={this.props} />
 				);
 		case '2':
 		  return (
-				<AllProjectsNav screenProps={this.props} />
+				<AllProjectsNav	style={styles.stackNav}  screenProps={this.props} />
+			);  
+		case '3':
+		  return (
+				<AllRoomsNav style={styles.stackNav}  screenProps={this.props} />
 			);
 		default:
 		  return null;
@@ -108,6 +135,15 @@ export class Tabs extends Component{
 const styles = StyleSheet.create({
   container: {
 	flex: 1,
+  },
+  stackNav:{
+	...Platform.select({
+		ios: {
+			marginTop: -20,
+		},
+	  android: {},
+	}),
+	flex:1
   },
   page: {
 	justifyContent: 'center',

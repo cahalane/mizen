@@ -5,7 +5,8 @@ import {
 	Text,
 	View,
 	ListView,
-	DeviceEventEmitter
+	DeviceEventEmitter,
+	ActivityIndicator
 } from 'react-native';
 import { connect, Provider } from 'react-redux';
 import NearbyInfo from './NearbyInfo';
@@ -19,24 +20,32 @@ export class RoomInfo2 extends Component {
 	render() {
 		if (typeof this.props.room !== "undefined"){
 			return (
-				<View>
+				<View style={styles.container}>
 					<View>
 						<Text style={styles.headerText}>
 							{this.props.room.name}
 						</Text>
-						<NearbyInfo rooms={this.props.nearbyRooms} />
 					</View>
 					<ProjectList
+						style={styles.page}
 						ds={this.props.nearbyDS}
 						showSearchBar={false}
 						projects={this.props.projrm}
 						navigation={this.props.navigation} />
+					<NearbyInfo rooms={this.props.nearbyRooms} projects={this.props.projects} />
 				</View>
 			);
 		} else {
 			return (
-				<View>
-					<Text> Looking for a room... </Text>
+				<View style={styles.container}>
+			      	<ActivityIndicator
+						animating={true}
+						style={{height: 80}}
+						size="large"
+					/>
+					<Text style={styles.headerText}>Looking for a room...</Text>
+					<Text>Are you away from the event?</Text>
+					<Text>Is Bluetooth enabled?</Text>
 				</View>
 			);
 		}
@@ -53,11 +62,26 @@ const mapStateToProps = (state) => {
 		} 
 	}
 
+	let room;
+	if(projrm.length){
+		room = state.nearbyRooms.shift();
+		room.numSaved = 0;
+		room.leftToSee = 0;
+		for(i in projrm){
+			if(projrm[i].saved){
+				room.numSaved++;
+				if(!projrm[i].done){
+					room.leftToSee++;
+				}
+			}
+		}
+	}
+
 	let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
 	return {
-		room: state.nearbyRooms[0],
-		nearbyRooms: state.nearbyRooms.slice(1),
+		room: room,
+		nearbyRooms: state.nearbyRooms,
 		projrm: projrm,
 		projects: state.projects,
 		nearbyDS: ds.cloneWithRows(projrm),
@@ -66,6 +90,17 @@ const mapStateToProps = (state) => {
 }
 
 const styles = StyleSheet.create({
+	container: {
+    	flex: 1,
+    	alignItems: 'center',
+    	justifyContent: 'center',
+	},
+
+	page: {
+    	flex: 1,
+    	backgroundColor: 'white'
+	},
+
 	headerText: {
 		fontSize: 20,
 		textAlign: 'center',

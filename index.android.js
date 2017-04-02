@@ -10,7 +10,8 @@ import {
   StyleSheet,
   Text,
   View,
-  DeviceEventEmitter
+  DeviceEventEmitter,
+  Alert
 } from 'react-native';
 import Beacons from 'react-native-beacons-manager';
 
@@ -18,65 +19,16 @@ import { createStore } from 'redux';
 import { connect, Provider } from 'react-redux';
 
 import Tabs from './Components/Tabs';
+import SplashScreen from './Components/SplashScreen';
 
-var defaultState = {
-  "beacons" : [{"minor" : 0}],
-  "projects" : [],
-  "rooms" : [],
-  "nearbyRooms": [{}]
-}
-
-function state(state = defaultState, action) {
-  switch (action.type) {
-  case 'BEACONS_UPDATE':
-    action.projects = state.projects;
-    action.rooms = state.rooms;
-    action.nearbyRooms = [];
-    for(i in action.beacons){
-      for(j in action.rooms){
-        if(action.rooms[j].minor_number === action.beacons[i].minor){
-          if(!action.nearbyRooms.includes(action.rooms[j])){
-            action.nearbyRooms.push(action.rooms[j]);
-          }
-          break;
-        }
-      }
-    }
-    return action
-  case 'PROJECTS_UPDATE':
-    action.beacons = state.beacons;
-    action.rooms = state.rooms;
-    action.nearbyRooms = state.nearbyRooms;
-    return action
-  case 'ROOMS_UPDATE':
-    action.beacons = state.beacons;
-    action.projects = state.projects;
-    action.nearbyRooms = state.nearbyRooms;
-    for(i in action.beacons){
-      for(j in action.rooms){
-        if(action.rooms[j].minor_number === action.beacons[i].minor){
-          if(!action.nearbyRooms.includes(action.rooms[j])){
-            action.nearbyRooms.push(action.rooms[j]);
-          }
-          break;
-        }
-      }
-    }
-    return action
-  default:
-    return state
-  }
-}
-
-let store = createStore(state);
-
+import store from './store';
 
 async function establishBeacons(){
   Beacons.detectIBeacons(); 
   //Beacons.requestWhenInUseAuthorization();  
   const region = {
-    identifier: 'Estimotes',
-    uuid: 'B9407F30-F5F8-466E-AFF9-25556B57FE6D'
+    identifier: 'WGB',
+    uuid: 'EBD21AB7-C471-770B-E4DF-70EE82026A17'
   };
 
   try {
@@ -99,37 +51,62 @@ async function establishBeacons(){
       store.dispatch({type:'BEACONS_UPDATE', beacons:data.beacons});
     }
   });
-  store.dispatch({type:'BEACONS_UPDATE', beacons:[{minor:9494}, {minor:9494}, {minor:32767}]});
 }
 establishBeacons();
 
+ready = false;
 async function getProjectsFromAPI() {
-  try {
-    let response = await fetch('https://colmfyp.netsoc.co/projects.json');
-    let responseJson = await response.json();
-    return responseJson;
-  } catch(error) {
-    console.error(error);
-  }
+  let response = await fetch('https://colmfyp.netsoc.co/projects.json');
+  let responseJson = await response.json();
+  return responseJson;
 }
+
 async function initProjects(){
-  let data = await getProjectsFromAPI();
-  console.log(data); 
-  store.dispatch({type:'PROJECTS_UPDATE', projects:data.projects});
-  store.dispatch({type:'ROOMS_UPDATE', rooms:data.rooms});
+  try{
+    let data = await getProjectsFromAPI();
+    console.log(data); 
+    store.dispatch({type:'PROJECTS_UPDATE', projects:data.projects});
+    store.dispatch({type:'ROOMS_UPDATE', rooms:data.rooms});
+
+    ready = true;
+  } catch(error) {
+    Alert.alert(
+      'Network Error',
+      'There\'s been an issue downloading event information. Make sure you\'re connected to the internet and try again.',
+      [
+        {text: 'Try Again', onPress: () => initProjects()},
+      ],
+      { cancelable: false }
+    );
+  }
 }
 initProjects();
 
 export default class Mizen extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+    setTimeout(() => this.readyCheck(), 250);
+  }
+
+  readyCheck(){
+    this.setState({ready: ready});
+    console.log("readycheck", this.state.ready);
+    if(!this.state.ready){
+      setTimeout(() => this.readyCheck(), 250);
+    }
+  }
+
   render() {
-    return (
-      <View style={styles.container}>
-        <Tabs store={store}/>
-      </View>
-    );
+    if(this.state.ready){
+      return (
+        <Tabs store={store} />
+      );
+    } else {
+      return(<SplashScreen />);
+    }
   }
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1

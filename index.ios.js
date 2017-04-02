@@ -10,7 +10,9 @@ import {
   StyleSheet,
   Text,
   View,
-  DeviceEventEmitter
+  DeviceEventEmitter,
+  Alert,
+  AsyncStorage
 } from 'react-native';
 import Beacons from 'react-native-beacons-manager';
 
@@ -18,65 +20,16 @@ import { createStore } from 'redux';
 import { connect, Provider } from 'react-redux';
 
 import Tabs from './Components/Tabs';
+import SplashScreen from './Components/SplashScreen';
 
-var defaultState = {
-  "beacons" : [{"minor" : 0}],
-  "projects" : [],
-  "rooms" : [],
-  "nearbyRooms": [{}]
-}
-
-function state(state = defaultState, action) {
-  switch (action.type) {
-  case 'BEACONS_UPDATE':
-    action.projects = state.projects;
-    action.rooms = state.rooms;
-    action.nearbyRooms = [];
-    for(i in action.beacons){
-      for(j in action.rooms){
-        if(action.rooms[j].minor_number === action.beacons[i].minor){
-          if(!action.nearbyRooms.includes(action.rooms[j])){
-            action.nearbyRooms.push(action.rooms[j]);
-          }
-          break;
-        }
-      }
-    }
-    return action
-  case 'PROJECTS_UPDATE':
-    action.beacons = state.beacons;
-    action.rooms = state.rooms;
-    action.nearbyRooms = state.nearbyRooms;
-    return action
-  case 'ROOMS_UPDATE':
-    action.beacons = state.beacons;
-    action.projects = state.projects;
-    action.nearbyRooms = state.nearbyRooms;
-    for(i in action.beacons){
-      for(j in action.rooms){
-        if(action.rooms[j].minor_number === action.beacons[i].minor){
-          if(!action.nearbyRooms.includes(action.rooms[j])){
-            action.nearbyRooms.push(action.rooms[j]);
-          }
-          break;
-        }
-      }
-    }
-    return action
-  default:
-    return state
-  }
-}
-
-let store = createStore(state);
-
+import store from './store';
 
 async function establishBeacons(){
   // Beacons.detectIBeacons(); 
   Beacons.requestWhenInUseAuthorization();  
   const region = {
-    identifier: 'Estimotes',
-    uuid: 'B9407F30-F5F8-466E-AFF9-25556B57FE6D'
+    identifier: 'WGB',
+    uuid: 'EBD21AB7-C471-770B-E4DF-70EE82026A17'
   };
 
   try {
@@ -86,7 +39,6 @@ async function establishBeacons(){
     console.log(`Beacons ranging not started, error: ${error}`);
   }
   DeviceEventEmitter.addListener('beaconsDidRange', (data) => {
-    console.log(data);
     if(data.beacons.length > 0){
       function compare(a,b) {
         if (a.distance < b.distance)
@@ -95,7 +47,6 @@ async function establishBeacons(){
           return 1;
         return 0;
       }
-
       data.beacons.sort(compare);
       store.dispatch({type:'BEACONS_UPDATE', beacons:data.beacons});
     }
@@ -103,28 +54,63 @@ async function establishBeacons(){
 }
 establishBeacons();
 
+let ready = false;
 async function getProjectsFromAPI() {
-  try {
-    let response = await fetch('https://colmfyp.netsoc.co/projects.json');
-    let responseJson = await response.json();
-    return responseJson;
-  } catch(error) {
-    console.error(error);
-  }
+  let response = await fetch('https://colmfyp.netsoc.co/projects.json');
+  let responseJson = await response.json();
+  return responseJson;
 }
+
 async function initProjects(){
-  let data = await getProjectsFromAPI();
-  console.log(data); 
-  store.dispatch({type:'PROJECTS_UPDATE', projects:data.projects});
-  store.dispatch({type:'ROOMS_UPDATE', rooms:data.rooms});
+  try{
+    s = await AsyncStorage.getItem('savedProjects');
+    s = s === null ? [] : JSON.parse(s);
+    d = await AsyncStorage.getItem('doneProjects');
+    d = d === null ? [] : JSON.parse(d);
+    let data = await getProjectsFromAPI();
+    for(i in data.projects){
+      data.projects[i].saved = s.includes(data.projects[i].id);
+      data.projects[i].done =  d.includes(data.projects[i].id);
+    }
+    store.dispatch({type:'PROJECTS_UPDATE', projects:data.projects});
+    store.dispatch({type:'ROOMS_UPDATE', rooms:data.rooms});
+
+    ready = true;
+  } catch(error) {
+    Alert.alert(
+      'Network Error',
+      'There\'s been an issue downloading event information. Make sure you\'re connected to the internet before trying again.',
+      [
+        {text: 'Try Again', onPress: () => initProjects()},
+      ],
+      { cancelable: false }
+    );
+  }
 }
 initProjects();
 
 export default class Mizen extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+    setTimeout(() => this.readyCheck(), 250);
+  }
+
+  readyCheck(){
+    this.setState({ready: ready});
+    if(!this.state.ready){
+      setTimeout(() => this.readyCheck(), 250);
+    }
+  }
+
   render() {
-    return (
+    if(this.state.ready){
+      return (
         <Tabs store={store} />
-    );
+      );
+    } else {
+      return(<SplashScreen />);
+    }
   }
 }
 

@@ -7,25 +7,43 @@ import {
 	ListView,
 	DeviceEventEmitter,
 	TouchableOpacity,
-	Platform
+	Platform,
+	Button
 } from 'react-native';
 import { connect, Provider } from 'react-redux';
 import ProjectRowItem from './ProjectRowItem';
 import SearchBar from 'react-native-searchbar';
 
+function projectSort(a,b){
+	let one = a.saved ? 1 : -1;
+	let two = b.saved ? 1 : -1;
+	if(two-one == 0){
+		return a.id - b.id;
+	} else {
+		return two-one;
+	};
+}
+
 export class ProjectList extends Component{
 	constructor(props){
 		super(props);
 		this.state = {};
-
+		this.state.results = this.props.projects;
+		
+		if(typeof props.ds === "undefined"){
+			let projects = props.projects.sort(projectSort);
+			let datasource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+			this.state.ds2 = datasource.cloneWithRows(projects);
+		}
 		this.showSearchBar = true;
 		if(typeof props.showSearchBar !== "undefined"){
 			this.showSearchBar = props.showSearchBar;
 		}
 
-		this.ListViewStyle = {};
+
+		this.ListViewStyle = {flex:1};
 		if(this.showSearchBar){
-			this.ListViewStyle.marginTop = 62;
+			this.ListViewStyle.marginTop = 52;
 		}
 	}
 
@@ -41,40 +59,64 @@ export class ProjectList extends Component{
 		this.state.results = results;
 	}
 
+	saveResults(){
+		for(i in this.state.results){
+			this.state.results[i].changeStatus('save');
+		}
+	}
+
 	render() {
 		const { navigate } = this.props.navigation;
 			return (
-				<View>
+				<View style={styles.container}>
 					<ListView
 						style={this.ListViewStyle}
 						enableEmptySections={true}
+						removeClippedSubviews = {false} 
+						initialListSize={this.props.projects.length}
 						dataSource={this._getDS()}
 						renderRow={(rowData) => <ProjectRowItem
 													project={rowData}
 													callOnClick={(project) => navigate('IndividualProject', { project: project })} />
 					} />
-					{this.showSearchBar && <SearchBar
-						ref={(ref) => this.searchBar = ref}
-  						data={this.props.projects}
-  						focusOnLayout={false}
-						allDataOnEmptySearch={true}
-						handleResults={(results) => this._handleResults(results)}
-						showOnLoad={this.showSearchBar}
-						hideBack={true}
-						iOSPadding={false}
-						style={{margin: 10}}
-					/>}
+					{this.showSearchBar && 
+						<SearchBar
+							ref={(ref) => this.searchBar = ref}
+	  						data={this.props.projects}
+	  						focusOnLayout={false}
+							allDataOnEmptySearch={true}
+							handleResults={(results) => this._handleResults(results)}
+							showOnLoad={this.showSearchBar}
+							hideBack={true}
+							iOSPadding={false}
+						/>
+					}
+					{this.showSearchBar && this.state.results.length < this.props.projects.length &&
+						<Button
+							onPress={() => this.saveResults()}
+							title="Add All To Saved Projects"
+							accessibilityLabel="Add all these results to Saved Projects"
+							/>
+					}
 				</View>
 			);
 	}
 
 }
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    // backgroundColor: 'white'
+  },
+});
+
 
 const mapStateToProps = (state, ownProps) => {
 	let datasource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+	let projects = state.projects.sort(projectSort);
 	props = {
 		ds : datasource.cloneWithRows(state.projects),
-		projects: state.projects
+		projects: projects
 	}
 
 	if(typeof ownProps.navigation !== "undefined"){
