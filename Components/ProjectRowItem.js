@@ -56,12 +56,12 @@ export class ProjectRowItem extends Component{
 			  				 color={this.props.project.saved ? '#ffd600' : 'black'}
 			  				 style={styles.button}
 			  				 onPress={() => {this.toggleSave()}} /> }
-			  	{this.state.loadingSave && <ActivityIndicator style={styles.button} />}
+			  	{this.state.loadingSave && <ActivityIndicator style={[styles.button, styles.indicator]} />}
 			  	{!this.state.loadingDone && <Icon.Button name={this.props.project.done  ? 'check-circle' : 'check-circle-o'}
  			  				 color={this.props.project.done ? '#00c853' : 'black'}
  			  				 style={styles.button} 
 			  				 onPress={() => {this.toggleDone()}} /> }
-			  	{this.state.loadingDone && <ActivityIndicator style={styles.button} />}
+			  	{this.state.loadingDone && <ActivityIndicator style={[styles.button, styles.indicator]} />}
 
 			</View>
 		);
@@ -84,6 +84,9 @@ const styles = StyleSheet.create({
 		flex: 1,
 		alignItems: 'center',
 		backgroundColor: 'white',
+	},
+	indicator:{
+		marginRight:10
 	},
 	title: {
 		fontSize: 15,

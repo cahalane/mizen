@@ -81,8 +81,8 @@ export class Tabs extends Component{
 	state = {
 		index: 0,
 		routes: [
-		  { key: '1', title: 'Nearby' },
-		  { key: '2', title: 'Projects' },
+		  { key: '1', title: 'Projects' },
+		  { key: '2', title: 'Nearby' },
 		  { key: '3', title: 'Rooms' },
 		],
 	};
@@ -98,13 +98,13 @@ export class Tabs extends Component{
 	_renderScene = ({ route }) => {
 		switch (route.key) {
 		case '1':
-			  return (
-				<NearbyNav style={styles.stackNav} screenProps={this.props} />
-				);
-		case '2':
 		  return (
 				<AllProjectsNav	style={styles.stackNav}  screenProps={this.props} />
 			);  
+		case '2':
+		  return (
+				<NearbyNav style={styles.stackNav} screenProps={this.props} />
+			);
 		case '3':
 		  return (
 				<AllRoomsNav style={styles.stackNav}  screenProps={this.props} />

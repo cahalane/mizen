@@ -14,7 +14,7 @@ export class SplashScreen extends Component{
 			<View style={styles.splashScreen}>
 				<Spacing />
 				<Image source={require('./splashimg.png')}
-					style={{width: 400, height: 400}} />
+					style={{width: 400, height:400}} />
 		      	<ActivityIndicator
 					animating={true}
 					style={{height: 80}}
