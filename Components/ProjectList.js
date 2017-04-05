@@ -21,6 +21,10 @@ export class ProjectList extends Component{
 		this.state = {};
 		this.state.results = props.projects;
 
+		if(typeof props.ds === "undefined"){
+			let datasource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+			this.state.ds2 = datasource.cloneWithRows(props.projects);
+		}
 		this.showSearchBar = true;
 		if(typeof props.showSearchBar !== "undefined"){
 			this.showSearchBar = props.showSearchBar;
