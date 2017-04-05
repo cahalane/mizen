@@ -14,32 +14,17 @@ import { connect, Provider } from 'react-redux';
 import ProjectRowItem from './ProjectRowItem';
 import SearchBar from 'react-native-searchbar';
 
-function projectSort(a,b){
-	let one = a.saved ? 1 : -1;
-	let two = b.saved ? 1 : -1;
-	if(two-one == 0){
-		return a.id - b.id;
-	} else {
-		return two-one;
-	};
-}
 
 export class ProjectList extends Component{
 	constructor(props){
 		super(props);
 		this.state = {};
-		this.state.results = this.props.projects;
-		
-		if(typeof props.ds === "undefined"){
-			let projects = props.projects.sort(projectSort);
-			let datasource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-			this.state.ds2 = datasource.cloneWithRows(projects);
-		}
+		this.state.results = props.projects;
+
 		this.showSearchBar = true;
 		if(typeof props.showSearchBar !== "undefined"){
 			this.showSearchBar = props.showSearchBar;
 		}
-
 
 		this.ListViewStyle = {flex:1};
 		if(this.showSearchBar){
@@ -55,7 +40,7 @@ export class ProjectList extends Component{
 	}
 
 	_handleResults(results){
-		this.state.ds2 = this.props.ds.cloneWithRows(results);
+		this.setState({ds2: this.props.ds.cloneWithRows(results)});
 		this.state.results = results;
 	}
 
@@ -113,10 +98,9 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state, ownProps) => {
 	let datasource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-	let projects = state.projects.sort(projectSort);
 	props = {
 		ds : datasource.cloneWithRows(state.projects),
-		projects: projects
+		projects: state.projects
 	}
 
 	if(typeof ownProps.navigation !== "undefined"){

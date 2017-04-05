@@ -52,16 +52,14 @@ export class ProjectRowItem extends Component{
 						</View>
 					</TouchableOpacity>
 				</View>
-			  	{!this.state.loadingSave && <Icon.Button name={this.props.project.saved ? 'star' : 'star-o'} 
-			  				 color={this.props.project.saved ? '#ffd600' : 'black'}
+			  	{<Icon.Button name={this.props.project.saved ? 'star' : 'star-o'} 
+			  				 color={this.state.loadingSave ? 'white' : this.props.project.saved ? '#ffd600' : 'black'}
 			  				 style={styles.button}
 			  				 onPress={() => {this.toggleSave()}} /> }
-			  	{this.state.loadingSave && <ActivityIndicator style={[styles.button, styles.indicator]} />}
-			  	{!this.state.loadingDone && <Icon.Button name={this.props.project.done  ? 'check-circle' : 'check-circle-o'}
- 			  				 color={this.props.project.done ? '#00c853' : 'black'}
+			  	{<Icon.Button name={this.props.project.done  ? 'check-circle' : 'check-circle-o'}
+ 			  				 color={this.state.loadingDone ? 'white' : this.props.project.done ? '#00c853' : 'black'}
  			  				 style={styles.button} 
 			  				 onPress={() => {this.toggleDone()}} /> }
-			  	{this.state.loadingDone && <ActivityIndicator style={[styles.button, styles.indicator]} />}
 
 			</View>
 		);

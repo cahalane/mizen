@@ -41,9 +41,10 @@ async function establishBeacons(){
   DeviceEventEmitter.addListener('beaconsDidRange', (data) => {
     if(data.beacons.length > 0){
       function compare(a,b) {
-        if (a.distance < b.distance)
+        distances = {"immediate":0, "near":1, "far":2, "unknown":99};
+        if (distances[a.proximity] < distances[b.proximity])
           return -1;
-        if (a.distance > b.distance)
+        if (distances[a.proximity] > distances[b.proximity])
           return 1;
         return 0;
       }
