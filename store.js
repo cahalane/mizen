@@ -12,7 +12,7 @@ import Beacons from 'react-native-beacons-manager';
 import { createStore } from 'redux';
 import { connect, Provider } from 'react-redux';
 
-var defaultState = {
+var defaultState = { // Initially empty
   "beacons" : [],
   "projects" : [],
   "rooms" : [],
@@ -20,6 +20,7 @@ var defaultState = {
 }
 
 async function updatePersistentStore(id, todo){
+  // If we're saving or unsaving
   if(todo === "save" || todo === "unsave"){
     let savedProjects = [];
     try {
@@ -27,17 +28,19 @@ async function updatePersistentStore(id, todo){
       if(s != null){
         savedProjects = JSON.parse(s);
       }
-    } catch(error) {}
+    } catch(error) { /* If error, just use the blank */ }
     if( todo === "save" && !savedProjects.includes(id) ){
       savedProjects.push(id);
     } else if(todo === "unsave" && savedProjects.includes(id)){
       let index = savedProjects.indexOf(id);
-      savedProjects.splice(index, 1);
+      savedProjects.splice(index, 1); // JS to remove from array!
     }
     try {
       AsyncStorage.setItem('savedProjects', JSON.stringify(savedProjects));
-    } catch(error) {}
+    } catch(error) { /* If error, just ignore */ }
   }
+
+  //as above
   if(todo === "done" || todo === "undone"){
     let doneProjects = [];
     try {
@@ -58,6 +61,8 @@ async function updatePersistentStore(id, todo){
   }
 }
 
+// Reducer to build Redux state
+// Refer to report for how this works
 function state(state = defaultState, action) {
   switch (action.type) {
     case 'BEACONS_UPDATE':
@@ -132,5 +137,6 @@ function state(state = defaultState, action) {
   }
 }
 
+// Create a redux store and pass to index
 store = createStore(state);
 export default store;

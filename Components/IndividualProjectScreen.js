@@ -14,32 +14,36 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 export class IndividualProjectScreen extends Component{
 	static navigationOptions = {
+		// Display project title on the navigator
 	    title: ({ state }) => `${state.params.project.title}`,
 	};
 
 	constructor(props) {
 		super(props);
 		this.state = {};
+
+		// When projects are transitioning between saved and done
+		// use these variables to show instant feedback
 		this.state.loadingSave = false;
 		this.state.loadingDone = false;
 	}
 
 	toggleSave(){
 		const { params } = this.props.navigation.state;
+		this.setState({loadingSave:true});
 		setTimeout(() => {
 			params.project.changeStatus(!params.project.saved ? 'save' : 'unsave')
 			this.setState({loadingSave:false});
-		}, 1);
-		this.setState({loadingSave:true});
+		}, 1); // JS doesn't support threading, but this is similar!
 	}
 
 	toggleDone(){
 		const { params } = this.props.navigation.state;
+		this.setState({loadingDone:true});
 		setTimeout(() => {
 			params.project.changeStatus(!params.project.done ? 'done' : 'undone');
 			this.setState({loadingDone:false});
 		}, 1);
-		this.setState({loadingDone:true});
 	}
 
 	render() {
@@ -84,7 +88,7 @@ export class IndividualProjectScreen extends Component{
 					<Text>
 						{params.project.description}
 					</Text>
-					<View style={{height:30}}></View>
+					<View style={{height:30}}></View> {/* some additional padding */}
 				</ScrollView>
 			);
 		} else {

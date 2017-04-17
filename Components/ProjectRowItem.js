@@ -17,24 +17,27 @@ export class ProjectRowItem extends Component{
 	constructor(props) {
 		super(props);
 		this.state = {};
+
+		// saving and loading can be slow
+		// so use these to show state transitions
 		this.state.loadingSave = false;
 		this.state.loadingDone = false;
 	}
 
 	toggleSave(){
+		this.setState({loadingSave:true});
 		setTimeout(() => {
 			this.props.project.changeStatus(!this.props.project.saved ? 'save' : 'unsave')
 			this.setState({loadingSave:false});
-		}, 1);
-		this.setState({loadingSave:true});
+		}, 1); // JS has no threads so this approximates one
 	}
 
 	toggleDone(){
+		this.setState({loadingDone:true});
 		setTimeout(() => {
 			this.props.project.changeStatus(!this.props.project.done ? 'done' : 'undone');
 			this.setState({loadingDone:false});
 		}, 1);
-		this.setState({loadingDone:true});
 	}
 
 	render() {

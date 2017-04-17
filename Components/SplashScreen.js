@@ -21,8 +21,8 @@ export class SplashScreen extends Component{
 					size="large"
 					color="white"
 				/>
-
-			</View>);
+			</View>
+		);
    }
 }
 

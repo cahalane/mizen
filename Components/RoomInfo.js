@@ -53,8 +53,7 @@ export class RoomInfo2 extends Component {
 }
 
 const mapStateToProps = (state) => {
-	projrm = [];
-	pos = 1;
+	projrm = []; // PROJects in RooM
 	for(i in state.projects){
 		if( state.projects[i].room != null && state.nearbyRooms.length > 0
 			&& state.projects[i].room.minor_number === state.nearbyRooms[0].minor_number){
@@ -64,6 +63,7 @@ const mapStateToProps = (state) => {
 
 	let room;
 	if(projrm.length){
+		//calculate projects saved and left to see!
 		room = state.nearbyRooms.shift();
 		room.numSaved = 0;
 		room.leftToSee = 0;
@@ -79,7 +79,7 @@ const mapStateToProps = (state) => {
 
 	let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
-	return {
+	return { // Return a RoomInfo object bound to the nearby Room
 		room: room,
 		nearbyRooms: state.nearbyRooms,
 		projrm: projrm,

@@ -6,6 +6,9 @@ import {
 import StatusBarSizeIOS from 'react-native-status-bar-size';
 
 export class Spacing extends Component {
+	// create an element to occupy the space at the top of the screen
+	// where the IOS status bar is located
+
    constructor(props){
    		super(props);
    		this.state = {};

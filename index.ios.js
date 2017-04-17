@@ -25,8 +25,8 @@ import SplashScreen from './Components/SplashScreen';
 import store from './store';
 
 async function establishBeacons(){
-  // Beacons.detectIBeacons(); 
-  Beacons.requestWhenInUseAuthorization();  
+  // Beacons.detectIBeacons(); // Android-only fn
+  Beacons.requestWhenInUseAuthorization(); // iOS only fn
   const region = {
     identifier: 'WGB',
     uuid: 'EBD21AB7-C471-770B-E4DF-70EE82026A17'
@@ -38,9 +38,12 @@ async function establishBeacons(){
   } catch (error) {
     console.log(`Beacons ranging not started, error: ${error}`);
   }
+  // Update app state with ordered detected beacons
+  // whenever beacons range
   DeviceEventEmitter.addListener('beaconsDidRange', (data) => {
     if(data.beacons.length > 0){
-      function compare(a,b) {
+      function compare(a,b) { // by distance (roughly!)
+        // ios beacons have no numeric distance
         distances = {"immediate":0, "near":1, "far":2, "unknown":99};
         if (distances[a.proximity] < distances[b.proximity])
           return -1;
@@ -55,17 +58,23 @@ async function establishBeacons(){
 }
 establishBeacons();
 
-let ready = false;
+let ready = false; // Used to handle asynchrnous state from
+                   // outside the component
 async function getProjectsFromAPI() {
-  let response = await fetch('https://colmfyp.netsoc.co/projects.json');
+  // Change this, but note - JSON endpoint MUST BE HTTPS!
+  let response = await fetch('https://colmfyp.netsoc.co/projects.json'); 
   let responseJson = await response.json();
   return responseJson;
 }
 
 async function initProjects(){
   try{
+    // Get saved projects from storage
     s = await AsyncStorage.getItem('savedProjects');
+    // if nothing found, use empty array instead
     s = s === null ? [] : JSON.parse(s);
+
+    //repeat
     d = await AsyncStorage.getItem('doneProjects');
     d = d === null ? [] : JSON.parse(d);
     let data = await getProjectsFromAPI();
@@ -73,6 +82,8 @@ async function initProjects(){
       data.projects[i].saved = s.includes(data.projects[i].id);
       data.projects[i].done =  d.includes(data.projects[i].id);
     }
+
+    //update state
     store.dispatch({type:'PROJECTS_UPDATE', projects:data.projects});
     store.dispatch({type:'ROOMS_UPDATE', rooms:data.rooms});
 
@@ -94,7 +105,7 @@ export default class Mizen extends Component {
   constructor(props) {
     super(props);
     this.state = {};
-    setTimeout(() => this.readyCheck(), 250);
+    setTimeout(() => this.readyCheck(), 250); // Keep checking until it is!
   }
 
   readyCheck(){

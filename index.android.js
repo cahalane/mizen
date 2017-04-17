@@ -24,8 +24,9 @@ import SplashScreen from './Components/SplashScreen';
 import store from './store';
 
 async function establishBeacons(){
-  Beacons.detectIBeacons(); 
-  //Beacons.requestWhenInUseAuthorization();  
+  Beacons.detectIBeacons(); // Android only fn
+  //Beacons.requestWhenInUseAuthorization(); // ios only fn
+
   const region = {
     identifier: 'WGB',
     uuid: 'EBD21AB7-C471-770B-E4DF-70EE82026A17'
@@ -37,9 +38,12 @@ async function establishBeacons(){
   } catch (error) {
     console.log(`Beacons ranging not started, error: ${error}`);
   }
+
+  // Update app state with ordered detected beacons
+  // whenever beacons range
   DeviceEventEmitter.addListener('beaconsDidRange', (data) => {
     if(data.beacons.length > 0){
-      function compare(a,b) {
+      function compare(a,b) { //by distance
         if (a.distance < b.distance)
           return -1;
         if (a.distance > b.distance)
@@ -55,16 +59,28 @@ async function establishBeacons(){
 establishBeacons();
 
 ready = false;
+
 async function getProjectsFromAPI() {
   let response = await fetch('https://colmfyp.netsoc.co/projects.json');
-  let responseJson = await response.json();
-  return responseJson;
+  let data = await response.json();
+  return data;
 }
 
 async function initProjects(){
   try{
+    // Change this, but note - JSON endpoint MUST BE HTTPS!
     let data = await getProjectsFromAPI();
-    console.log(data); 
+
+    // Get saved projects from storage
+    s = await AsyncStorage.getItem('savedProjects');
+    // if nothing found, use empty array instead
+    s = s === null ? [] : JSON.parse(s);
+
+    //repeat
+    d = await AsyncStorage.getItem('doneProjects');
+    d = d === null ? [] : JSON.parse(d);
+
+    //update state
     store.dispatch({type:'PROJECTS_UPDATE', projects:data.projects});
     store.dispatch({type:'ROOMS_UPDATE', rooms:data.rooms});
 
@@ -86,12 +102,11 @@ export default class Mizen extends Component {
   constructor(props) {
     super(props);
     this.state = {};
-    setTimeout(() => this.readyCheck(), 250);
+    setTimeout(() => this.readyCheck(), 250); // Keep checking until it is!
   }
 
   readyCheck(){
     this.setState({ready: ready});
-    console.log("readycheck", this.state.ready);
     if(!this.state.ready){
       setTimeout(() => this.readyCheck(), 250);
     }

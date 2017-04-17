@@ -21,17 +21,21 @@ export class ProjectList extends Component{
 		this.state = {};
 		this.state.results = props.projects;
 
+		// if a DataSource isn't provided, make one in state
 		if(typeof props.ds === "undefined"){
 			let datasource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 			this.state.ds2 = datasource.cloneWithRows(props.projects);
 		}
+
 		this.showSearchBar = true;
 		if(typeof props.showSearchBar !== "undefined"){
+			//show searchbar unless told specifically not to
 			this.showSearchBar = props.showSearchBar;
 		}
 
 		this.ListViewStyle = {flex:1};
 		if(this.showSearchBar){
+			// add space for searchbar if we have it!
 			this.ListViewStyle.marginTop = 52;
 		}
 	}
@@ -41,11 +45,14 @@ export class ProjectList extends Component{
 			return this.state.ds2;
 		}
 		return this.props.ds;
+		// return normal datasource unless we have
+		// search results or otherwise
 	}
 
 	_handleResults(results){
+		// make a datasource with results and set it as the view's datasource
 		this.setState({ds2: this.props.ds.cloneWithRows(results)});
-		this.state.results = results;
+		this.state.results = results; // store results for saveResults 
 	}
 
 	saveResults(){

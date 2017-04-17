@@ -13,6 +13,7 @@ export class NearbyInfo extends Component{
 		for(i in props.rooms){
 			props.rooms[i].numSaved = 0;
 			props.rooms[i].leftToSee = 0;
+			// Calc saved and leftToSee for each room
 			for(j in props.projects){
 				if(props.projects[j].minor_number === props.rooms[i].minor_number
 				    && props.projects[j].saved){

@@ -11,6 +11,7 @@ import ProjectList from './ProjectList';
 
 export class IndividualRoomScreen extends Component{
 	static navigationOptions = {
+		// Room name in nav header
 	    title: ({ state }) => `${state.params.room.name}`,
 	};
 
