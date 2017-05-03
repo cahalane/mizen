@@ -22,7 +22,7 @@ A brief summary follows:
   * If using Android SDK, [make sure the environment variable ANDROID_HOME is defined.](https://facebook.github.io/react-native/releases/0.23/docs/android-setup.html#define-the-android-home-environment-variable)
 
 ### Running the app
-* Navigate to this directory
+* Clone this repository & navigate to this directory
 * Run `npm install -g react-native-cli` - this will install react-native cli and put it on your PATH.
 * Run `npm install --save` - this will fetch required libraries that I've included.
 * To run on a configured Android emulator or an Android device with USB debugging enabled: `react-native run-android`
